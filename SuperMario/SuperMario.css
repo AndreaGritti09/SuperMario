@@ -1,0 +1,38 @@
+/* Stile del corpo della pagina (fuori dalla canva) */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #2c3e50; /* Un bel blu scuro notturno per far risaltare il gioco */
+            color: #ecf0f1;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; /* Font in stile cartoon */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden; /* Evita le barre di scorrimento */
+        }
+
+        /* Stile del titolo */
+        h1 {
+            margin: 10px 0;
+            color: #f1c40f; /* Giallo oro */
+            text-shadow: 3px 3px 0 #000; /* Ombra netta stile cartoon */
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+        }
+
+        /* Sottotitolo/Istruzioni */
+        p {
+            margin: 0 0 15px 0;
+            font-size: 1.2rem;
+            color: #bdc3c7;
+        }
+
+        /* Stile della Canva del gioco */
+        canvas {
+            border: 6px solid #000; /* Bordo nero massiccio attorno al gioco */
+            border-radius: 10px; /* Angoli leggermente smussati */
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.8); /* Ombra per dare profondità */
+            background-color: #6495ED; 
+        }
