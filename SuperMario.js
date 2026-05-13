@@ -77,6 +77,7 @@ var animatedObject = {
 };
 
 var myObstacles = [];
+var myEnemies = [];
 var myScore;
 
 function startGame() {
@@ -93,6 +94,7 @@ function startGame() {
     myObstacles.push(new component(800, 50, "#228B22", 0, groundY, "rect")); // Prato iniziale lungo 800
     myObstacles.push(new component(50, 60, "#32CD32", 300, groundY - 60, "rect")); // Tubo 1
     myObstacles.push(new component(70, 20, "#32CD32", 290, groundY - 60, "rect"))
+    myEnemies.push(new component(50, 50, "#652d05", 350, groundY - 60, "rect" ))
     myObstacles.push(new component(120, 20, "#8B4513", 500, groundY - 120, "rect")); // Piattaforma sospesa 1
     myObstacles.push(new component(50, 90, "#32CD32", 700, groundY - 90, "rect")); // Tubo 2 (più alto)
     myObstacles.push(new component(70, 20, "#32CD32", 690, groundY - 90, "rect"))
@@ -108,7 +110,7 @@ function startGame() {
 
     // --- FOSSATO 2 --- (Da X: 1550 a X: 1750 c'è il vuoto)
 
-    // --- SEZIONE 3: Rettilineo finale ---
+   
    // --- SEZIONE 2: Zona Ostacoli Extra (1700 - 3500) ---
     myObstacles.push(new component(1000, 50, "#228B22", 1700, groundY, "rect")); 
     myObstacles.push(new component(50, 120, "#32CD32", 1900, groundY - 120, "rect")); // Tubo molto alto
@@ -261,6 +263,8 @@ function updateGameArea() {
     for (let i = 0; i < myObstacles.length; i++) {
         let plat = myObstacles[i];
         
+        
+        
         if (animatedObject.x < plat.x + plat.width &&
             animatedObject.x + animatedObject.width > plat.x &&
             animatedObject.y < plat.y + plat.height &&
@@ -289,11 +293,52 @@ function updateGameArea() {
             }
         }
     }
+    for (let i = 0; i < myEnemies.length; i++) {
+        let enemy = myEnemies[i];
 
-    // Disegna ostacoli
-    for (let i = 0; i < myObstacles.length; i += 1) {
-        myObstacles[i].update();
+
+        if (animatedObject.x < enemy.x + enemy.width &&
+            animatedObject.x + animatedObject.width > enemy.x &&
+            animatedObject.y < enemy.y + enemy.height &&
+            animatedObject.y + animatedObject.height > enemy.y) {
+
+                // Atterraggio
+            if (animatedObject.speedY > 0 && animatedObject.y + animatedObject.height - animatedObject.speedY <= enemy.y) {
+                animatedObject.grounded = true;
+                animatedObject.speedY = 0;
+                animatedObject.y = enemy.y - animatedObject.height;
+                animatedObject.grounded = true;
+                animatedObject.speedY = -10;
+                myEnemies.splice(i,1)
+            }
+            // Testata sotto il blocco
+            else if (animatedObject.speedY < 0 && animatedObject.y - animatedObject.speedY >= enemy.y + enemy.height) {
+                animatedObject.speedY = 0;
+                animatedObject.y = enemy.y + enemy.height;
+            }
+            // Muro a Destra
+            else if (animatedObject.speedX > 0 && animatedObject.x + animatedObject.width - animatedObject.speedX <= enemy.x) {
+                animatedObject.speedX = 0;
+                animatedObject.x = enemy.x - animatedObject.width;
+            }
+            // Muro a Sinistra
+            else if (animatedObject.speedX < 0 && animatedObject.x - animatedObject.speedX >= enemy.x + enemy.width) {
+                animatedObject.speedX = 0;
+                animatedObject.x = enemy.x + enemy.width;
+            }    
+    
+        }
     }
+
+            // 1. Disegna tutti gli ostacoli
+        for (let i = 0; i < myObstacles.length; i++) {
+            myObstacles[i].update();
+        }
+
+        // 2. Disegna tutti i nemici (separatamente!)
+        for (let i = 0; i < myEnemies.length; i++) {
+            myEnemies[i].update();
+        }
     
     // Disegna giocatore
     myGameArea.drawGameObject(animatedObject);
