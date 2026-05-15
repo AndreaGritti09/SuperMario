@@ -94,7 +94,12 @@ function startGame() {
     myObstacles.push(new component(800, 50, "#228B22", 0, groundY, "rect")); // Prato iniziale lungo 800
     myObstacles.push(new component(50, 60, "#32CD32", 300, groundY - 60, "rect")); // Tubo 1
     myObstacles.push(new component(70, 20, "#32CD32", 290, groundY - 60, "rect"))
-    myEnemies.push(new component(50, 50, "#652d05", 350, groundY - 60, "rect" ))
+    // --- NEMICO 1 ---
+    let e1 = new component(50, 50, "#652d05", 360, groundY - 50, "rect");
+    e1.speedX = 2;
+    e1.limiteSinistra = 360;
+    e1.limiteDestra = 650;
+    myEnemies.push(e1); // Ora carichi l'oggetto completo di tutto                ;
     myObstacles.push(new component(120, 20, "#8B4513", 500, groundY - 120, "rect")); // Piattaforma sospesa 1
     myObstacles.push(new component(50, 90, "#32CD32", 700, groundY - 90, "rect")); // Tubo 2 (più alto)
     myObstacles.push(new component(70, 20, "#32CD32", 690, groundY - 90, "rect"))
@@ -105,6 +110,12 @@ function startGame() {
     myObstacles.push(new component(600, 50, "#228B22", 950, groundY, "rect")); // Riprende il prato
     myObstacles.push(new component(120, 20, "#8B4513", 1100, groundY - 100, "rect")); 
     myObstacles.push(new component(120, 20, "#8B4513", 1300, groundY - 180, "rect")); // Piattaforma più alta
+    // --- NEMICO 2 ---
+    let e2 = new component(50, 50, "#652d05", 950, groundY - 50, "rect");
+    e2.speedX = 2;
+    e2.limiteSinistra = 950;
+    e2.limiteDestra = 1380;
+    myEnemies.push(e2); // Carichi il secondo oggetto
     myObstacles.push(new component(50, 40, "#32CD32", 1450, groundY - 40, "rect")); // Tubo basso prima del buco 
     myObstacles.push(new component(70, 20, "#32CD32", 1440, groundY - 40, "rect"))
 
@@ -115,8 +126,18 @@ function startGame() {
     myObstacles.push(new component(1000, 50, "#228B22", 1700, groundY, "rect")); 
     myObstacles.push(new component(50, 120, "#32CD32", 1900, groundY - 120, "rect")); // Tubo molto alto
     myObstacles.push(new component(70, 20, "#32CD32", 1890, groundY - 120, "rect"))
+    let e3 = new component(50, 50, "#652d05", 1890, groundY - 50, "rect");
+    e3.speedX = 2;
+    e3.limiteSinistra = 1950;
+    e3.limiteDestra = 2550;
+    myEnemies.push(e3);
     myObstacles.push(new component(150, 20, "#8B4513", 2100, groundY - 100, "rect"));
     myObstacles.push(new component(150, 20, "#8B4513", 2300, groundY - 200, "rect")); // Salto in alto
+    let e4 = new component(50, 50, "#652d05", 2300, groundY - 250, "rect");
+    e4.speedX = 2;
+    e4.limiteSinistra = 2300;
+    e4.limiteDestra = 2400;
+    myEnemies.push(e4);
     myObstacles.push(new component(50, 150, "#32CD32", 2550, groundY - 150, "rect")); // Ostacolo alto
     myObstacles.push(new component(70, 20, "#32CD32", 2540, groundY - 150, "rect"))
     
@@ -130,6 +151,11 @@ function startGame() {
     myObstacles.push(new component(1200, 50, "#228B22", 3700, groundY, "rect")); // Terreno finale
 
     // Creazione della SCALINATA stile Mario
+    let e5 = new component(50, 50, "#652d05", 3700, groundY - 50, "rect");
+    e5.speedX = 2;
+    e5.limiteSinistra = 3700;
+    e5.limiteDestra = 4100;
+    myEnemies.push(e5);
     let stairX = 4100;
     let stairSize = 40;
     for (let i = 1; i <= 6; i++) {
@@ -305,9 +331,6 @@ function updateGameArea() {
                 // Atterraggio
             if (animatedObject.speedY > 0 && animatedObject.y + animatedObject.height - animatedObject.speedY <= enemy.y) {
                 animatedObject.grounded = true;
-                animatedObject.speedY = 0;
-                animatedObject.y = enemy.y - animatedObject.height;
-                animatedObject.grounded = true;
                 animatedObject.speedY = -10;
                 myEnemies.splice(i,1)
             }
@@ -329,6 +352,48 @@ function updateGameArea() {
     
         }
     }
+
+    // --- GESTIONE NEMICI ---
+for (let i = 0; i < myEnemies.length; i++) {
+    let enemy = myEnemies[i];
+
+    // 1. Movimento
+    enemy.x += enemy.speedX;
+
+    // 2. Controllo Limiti (Pattuglia)
+    if (enemy.x >= enemy.limiteDestra) {
+        enemy.speedX = -2;
+    } else if (enemy.x <= enemy.limiteSinistra) {
+        enemy.speedX = 2;
+    }
+
+    // 3. Collisione con Mario
+    if (animatedObject.x < enemy.x + enemy.width &&
+        animatedObject.x + animatedObject.width > enemy.x &&
+        animatedObject.y < enemy.y + enemy.height &&
+        animatedObject.y + animatedObject.height > enemy.y) {
+
+        if (animatedObject.speedY > 0 && (animatedObject.y + animatedObject.height - animatedObject.speedY) <= enemy.y) {
+            myEnemies.splice(i, 1);
+            i--; 
+            animatedObject.speedY = -10;
+            continue; // Salta il resto del ciclo per questo nemico dato che è morto
+        } else {
+            isGameOver = true;
+            myGameArea.stop();
+            myScore.text = "💀 GAME OVER 💀";
+            myScore.color = "#ff4757"; // Un rosso più gradevole
+            myScore.x = myGameArea.canvas.width / 2 - 180;
+            myScore.y = myGameArea.canvas.height / 2;
+            myScore.width = "40px";
+            myScore.update();
+            return;
+        }
+    }
+
+    // 4. DISEGNA il nemico (una volta sola!)
+    enemy.update();
+}
 
             // 1. Disegna tutti gli ostacoli
         for (let i = 0; i < myObstacles.length; i++) {
